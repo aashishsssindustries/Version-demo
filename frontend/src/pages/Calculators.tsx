@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Calculator as CalcIcon, TrendingUp, Home, CreditCard, ArrowLeft, RefreshCw, Download, Shield, BookOpen, Clock, Building, Percent, MapPin, Info, CheckCircle, PlusCircle, ExternalLink } from 'lucide-react';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { Calculator as CalcIcon, TrendingUp, Home, CreditCard, ArrowLeft, RefreshCw, Download, Shield, BookOpen, Clock, Building, Percent, MapPin, Info, CheckCircle, ArrowRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
 import { calculatorService, profileService } from '../services/api';
+import { checkProfileCompletion } from '../utils/flowGuard';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './Calculators.css';
@@ -54,7 +55,7 @@ const CALCULATOR_CONFIG: any = {
             { name: 'income', label: 'Annual Income (₹)', type: 'number', default: 1000000, profileKey: 'gross_income_annual' },
             { name: 'age', label: 'Current Age', type: 'number', default: 30, profileKey: 'age' },
             { name: 'retirementAge', label: 'Retirement Age', type: 'number', default: 60 },
-            { name: 'liabilities', label: 'Total Liabilities (Loans etc) (₹)', type: 'number', default: 2000000 },
+            { name: 'liabilities', label: 'Total Liabilities (Loans etc) (₹)', type: 'number', default: 2000000, profileKey: 'total_liabilities' },
             { name: 'assets', label: 'Existing Assets (Investments) (₹)', type: 'number', default: 500000, profileKey: 'existing_assets' },
             { name: 'dependents', label: 'Number of Dependents', type: 'number', default: 2 }
         ]
@@ -130,7 +131,7 @@ const Calculators: React.FC = () => {
     const [result, setResult] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [profile, setProfile] = useState<any>(null);
-    const [profileLoading, setProfileLoading] = useState(true);
+    const [_profileLoading, setProfileLoading] = useState(true);
     const [actionContext, setActionContext] = useState<{ title?: string; gap?: number } | null>(null);
 
     // Fetch Profile on Mount
@@ -185,17 +186,20 @@ const Calculators: React.FC = () => {
                 } else if (inp.profileKey === 'gross_income') {
                     value = profile.gross_income || inp.default;
                 } else if (inp.profileKey === 'gross_income_annual') {
-                    value = (profile.gross_income || 0) * 12;
+                    value = profile.gross_income || inp.default; // Already annual in DB
                 } else if (inp.profileKey === 'fixed_expenses') {
                     value = profile.fixed_expenses || inp.default;
                 } else if (inp.profileKey === 'monthly_emi') {
                     value = profile.monthly_emi || inp.default;
                 } else if (inp.profileKey === 'existing_assets') {
                     value = profile.existing_assets || inp.default;
+                } else if (inp.profileKey === 'total_liabilities') {
+                    value = profile.total_liabilities || inp.default;
                 } else if (inp.profileKey === 'suggestedSIP') {
-                    // Calculate suggested SIP from surplus
-                    const surplus = (profile.gross_income || 0) - (profile.fixed_expenses || 0) - (profile.monthly_emi || 0);
-                    value = Math.max(0, Math.round(surplus * 0.3)); // 30% of surplus
+                    // Calculate suggested SIP from surplus (30% of monthly surplus)
+                    const monthlyIncome = (profile.gross_income || 0) / 12;
+                    const surplus = monthlyIncome - (profile.fixed_expenses || 0) - (profile.monthly_emi || 0);
+                    value = Math.max(0, Math.round(surplus * 0.3)); // 30% of monthly surplus
                 }
             }
 
@@ -322,29 +326,29 @@ const Calculators: React.FC = () => {
     const renderCTAs = () => {
         if (!result) return null;
 
+        const flowStatus = checkProfileCompletion(profile);
+
         return (
             <div className="cta-section">
                 <div className="cta-divider">
                     <span>Next Steps</span>
                 </div>
                 <div className="cta-buttons">
-                    <button className="cta-btn cta-primary" disabled title="Coming soon">
-                        <CheckCircle size={18} />
-                        Apply to My Plan
-                    </button>
-                    <button className="cta-btn cta-secondary" disabled title="Coming soon">
-                        <PlusCircle size={18} />
-                        Add as Goal
-                    </button>
                     <button
-                        className="cta-btn cta-secondary"
+                        className="cta-btn cta-primary"
                         onClick={() => navigate(`/profile?from=calculator&tool=${activeId}`)}
+                        disabled={!flowStatus.canApplyToProfile}
+                        title={!flowStatus.canApplyToProfile ? 'Complete your profile first' : 'Apply this plan to your profile'}
                     >
-                        <ExternalLink size={18} />
-                        Update Profile Assumptions
+                        <CheckCircle size={18} />
+                        Apply to Profile
                     </button>
+                    <Link to="/dashboard" className="cta-btn cta-secondary">
+                        <ArrowRight size={18} />
+                        Back to Dashboard
+                    </Link>
                 </div>
-                <p className="cta-note">Update your profile to recalculate recommendations based on new financial data.</p>
+                <p className="cta-note">Apply updates your profile and recalculates all recommendations.</p>
             </div>
         );
     };

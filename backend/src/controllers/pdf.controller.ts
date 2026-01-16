@@ -101,13 +101,13 @@ export class PDFController {
                     risk_class: profile.risk_class
                 },
                 actionItems: actionItems.map((item: any) => ({
-                    title: this.getRiskTitle(item.risk_type),
-                    description: this.getRiskDescription(item.risk_type, item.gap_amount),
-                    category: item.risk_type,
-                    priority: item.severity,
-                    gap_amount: item.gap_amount,
-                    estimated_score_impact: item.estimated_score_impact,
-                    action: this.getRiskAction(item.risk_type)
+                    title: item.title || PDFController.getRiskTitle(item.risk_type || item.category || 'General'),
+                    description: item.description || PDFController.getRiskDescription(item.risk_type, item.gap_amount),
+                    category: item.category || item.risk_type || 'General',
+                    priority: item.severity || item.priority || 'Medium',
+                    gap_amount: item.gap_amount || 0,
+                    estimated_score_impact: item.estimated_score_impact || 0,
+                    action: item.action || PDFController.getRiskAction(item.risk_type || item.category || 'General')
                 })),
                 calculatorSummary: {
                     sip: sipSummary,

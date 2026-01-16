@@ -159,6 +159,95 @@
 }
 
 .download-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.download-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f1f5f9;
+}
+
+/* Primary CTA Buttons */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.primary-cta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.primary-cta.incomplete {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.primary-cta.improve {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.primary-cta.calculator {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.primary-cta:hover {
+    transform: translateY(-2px);
+}
+
+/* Flow Alert */
+.flow-alert {
+    background: #fef3c7;
+    border-bottom: 1px solid #fcd34d;
+    padding: 12px 40px;
+}
+
+.flow-alert .alert-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.alert-text {
+    font-size: 13px;
+    color: #92400e;
+}
+
+.alert-text strong {
+    color: #78350f;
+}
+
+.alert-cta {
+    font-size: 13px;
+    font-weight: 600;
+    color: #d97706;
+    text-decoration: none;
+}
+
+.alert-cta:hover {
+    text-decoration: underline;
+}
+
+.download-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }

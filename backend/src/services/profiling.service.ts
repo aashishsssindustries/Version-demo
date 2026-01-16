@@ -10,6 +10,7 @@ export interface FinancialInput {
     total_liabilities: number;
     insurance_premium: number; // Annual
     insurance_coverage?: number; // Sum Assured
+    emergency_fund_amount?: number; // Dedicated emergency fund
 }
 
 export interface RiskBehaviorContext {
@@ -224,12 +225,13 @@ export class ProfilingService {
         const savingsRate = monthlyIncome > 0 ? monthlySurplus / monthlyIncome : 0;
 
         // --- RULE 1: Emergency Fund Shortfall (Graduated Priority) ---
-        // Condition: Emergency fund < 3 × monthly expenses
-        const liquidityMonths = monthlyExpenses > 0 ? input.existing_assets / monthlyExpenses : 0;
+        // Use emergency_fund_amount if available, otherwise fall back to existing_assets (30% assumed as liquid)
+        const emergencyFund = input.emergency_fund_amount || (input.existing_assets * 0.3);
+        const liquidityMonths = monthlyExpenses > 0 ? emergencyFund / monthlyExpenses : 0;
 
         if (liquidityMonths < 1) {
             // CRITICAL: Less than 1 month
-            const gap = Math.round((3 * monthlyExpenses) - input.existing_assets);
+            const gap = Math.round((3 * monthlyExpenses) - emergencyFund);
             recs.push({
                 id: 'emergency-fund-critical',
                 title: 'Critical Emergency Fund Gap',
@@ -245,7 +247,7 @@ export class ProfilingService {
             });
         } else if (liquidityMonths < 3) {
             // HIGH: Less than 3 months
-            const gap = Math.round((3 * monthlyExpenses) - input.existing_assets);
+            const gap = Math.round((3 * monthlyExpenses) - emergencyFund);
             recs.push({
                 id: 'emergency-fund-high',
                 title: 'Emergency Fund Below Target',
@@ -261,7 +263,7 @@ export class ProfilingService {
             });
         } else if (liquidityMonths < 6) {
             // MEDIUM: Less than 6 months (optimal)
-            const gap = Math.round((6 * monthlyExpenses) - input.existing_assets);
+            const gap = Math.round((6 * monthlyExpenses) - emergencyFund);
             recs.push({
                 id: 'emergency-fund-medium',
                 title: 'Strengthen Emergency Reserves',

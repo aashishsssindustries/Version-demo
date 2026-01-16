@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Download, CheckCircle2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Download, CheckCircle2, ArrowRight, Calculator, User, TrendingUp } from 'lucide-react';
 import { profileService } from '../services/api';
 import './Dashboard.css';
 import { OnboardingWizard } from '../components/onboarding/OnboardingWizard';
 import { InteractivePersonaCard } from '../components/dashboard/InteractivePersonaCard';
 import { HealthScoreCard } from '../components/dashboard/HealthScoreCard';
 import { ActionItemsGrid } from '../components/dashboard/ActionItemsGrid';
+import { checkProfileCompletion, getFlowGuardMessage } from '../utils/flowGuard';
 
 const Dashboard: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -37,8 +38,6 @@ const Dashboard: React.FC = () => {
 
     useEffect(() => {
         fetchProfile();
-
-        // Check if redirected from profile update
         if (searchParams.get('updated') === 'true') {
             setShowSuccessToast(true);
             setSearchParams({});
@@ -51,7 +50,15 @@ const Dashboard: React.FC = () => {
         fetchProfile();
     };
 
+    // Flow Guard Check
+    const flowStatus = checkProfileCompletion(profile);
+
     const handleDownloadPDF = async () => {
+        if (!flowStatus.canDownloadReport) {
+            setPdfError(getFlowGuardMessage(flowStatus));
+            return;
+        }
+
         try {
             setDownloadingPDF(true);
             setPdfError('');
@@ -87,6 +94,41 @@ const Dashboard: React.FC = () => {
             setPdfError(err.message || 'Failed to download PDF report');
         } finally {
             setDownloadingPDF(false);
+        }
+    };
+
+    // Scroll to action items
+    const scrollToActions = () => {
+        document.querySelector('.action-section')?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // Render Primary CTA based on flow state
+    const renderPrimaryCTA = () => {
+        switch (flowStatus.primaryCTA) {
+            case 'complete-profile':
+                return (
+                    <Link to="/profile" className="primary-cta incomplete">
+                        <User size={18} />
+                        Complete Profile
+                        <ArrowRight size={16} />
+                    </Link>
+                );
+            case 'improve-score':
+                return (
+                    <button className="primary-cta improve" onClick={scrollToActions}>
+                        <TrendingUp size={18} />
+                        Improve Score
+                        <ArrowRight size={16} />
+                    </button>
+                );
+            case 'use-calculator':
+                return (
+                    <Link to="/calculators" className="primary-cta calculator">
+                        <Calculator size={18} />
+                        Plan Your Goals
+                        <ArrowRight size={16} />
+                    </Link>
+                );
         }
     };
 
@@ -141,19 +183,35 @@ const Dashboard: React.FC = () => {
                     </p>
                 </div>
                 <div className="header-right">
-                    {profile && (
-                        <button
-                            className="download-btn"
-                            onClick={handleDownloadPDF}
-                            disabled={downloadingPDF}
-                        >
-                            <Download size={18} />
-                            {downloadingPDF ? 'Generating...' : 'Download Report'}
-                        </button>
-                    )}
+                    {/* Primary CTA */}
+                    {renderPrimaryCTA()}
+
+                    {/* Download Report */}
+                    <button
+                        className={`download-btn ${!flowStatus.canDownloadReport ? 'disabled' : ''}`}
+                        onClick={handleDownloadPDF}
+                        disabled={downloadingPDF || !flowStatus.canDownloadReport}
+                        title={!flowStatus.canDownloadReport ? getFlowGuardMessage(flowStatus) : 'Download Advisory Report'}
+                    >
+                        <Download size={18} />
+                        {downloadingPDF ? 'Generating...' : 'Download Report'}
+                    </button>
                     {pdfError && <p className="pdf-error">{pdfError}</p>}
                 </div>
             </header>
+
+            {/* Profile Incomplete Alert */}
+            {!flowStatus.isComplete && profile && (
+                <div className="flow-alert">
+                    <div className="alert-content">
+                        <span className="alert-text">
+                            Profile {flowStatus.percentage}% complete.
+                            <strong> Missing: {flowStatus.missingFields.join(', ')}</strong>
+                        </span>
+                        <Link to="/profile" className="alert-cta">Complete Now →</Link>
+                    </div>
+                </div>
+            )}
 
             {/* Main Content */}
             <main className="dashboard-main">

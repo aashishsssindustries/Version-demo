@@ -91,7 +91,14 @@ export class ProfileModel {
     static async update(userId: string, updates: Partial<FinancialProfile>): Promise<FinancialProfile | null> {
         // Construct dynamic update query
         const fields = Object.keys(updates).filter(key => key !== 'id' && key !== 'user_id');
-        if (fields.length === 0) return null;
+
+        console.log('[ProfileModel.update] Fields to update:', fields);
+        console.log('[ProfileModel.update] Update values:', updates);
+
+        if (fields.length === 0) {
+            console.log('[ProfileModel.update] No fields to update!');
+            return null;
+        }
 
         const setClause = fields.map((key, index) => `${key} = $${index + 2}`).join(', ');
         const values = fields.map(key => {
@@ -102,10 +109,13 @@ export class ProfileModel {
             return val;
         });
 
-        const result = await db.query(
-            `UPDATE profiles SET ${setClause} WHERE user_id = $1 RETURNING *`,
-            [userId, ...values]
-        );
+        const query = `UPDATE profiles SET ${setClause}, updated_at = NOW() WHERE user_id = $1 RETURNING *`;
+        console.log('[ProfileModel.update] Query:', query);
+        console.log('[ProfileModel.update] Params:', [userId, ...values]);
+
+        const result = await db.query(query, [userId, ...values]);
+        console.log('[ProfileModel.update] Result rows:', result.rows.length);
+
         return result.rows[0] || null;
     }
     static async getStats(score: number, personaLabel?: string): Promise<{ percentile: number; count: number }> {
@@ -147,21 +157,22 @@ export class ProfileModel {
 
         if (!items || items.length === 0) return;
 
-        // Bulk Insert
-        // items structure: { risk_type, severity, gap, scoreImpact, ... }
-        // We map them to DB columns: risk_type, severity, gap_amount, estimated_score_impact
-
+        // Bulk Insert with all required fields
         for (const item of items) {
             await db.query(
                 `INSERT INTO action_items 
-                 (user_id, risk_type, severity, gap_amount, estimated_score_impact)
-                 VALUES ($1, $2, $3, $4, $5)`,
+                 (user_id, title, description, category, risk_type, severity, gap_amount, estimated_score_impact, status)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
                 [
                     userId,
+                    item.title || item.type || 'Action Required',
+                    item.description || item.advice || 'Review and address this action item',
+                    item.category || item.type || 'General',
                     item.type || 'General',
-                    item.priority || 'Medium', // Map 'High'/'Medium' etc.
+                    item.priority || 'Medium',
                     item.gap || 0,
-                    parseInt(item.scoreImpact?.replace(/\D/g, '') || '0') // Extract Score
+                    parseInt(item.scoreImpact?.replace?.(/\D/g, '') || item.scoreImpact || '0'),
+                    'pending'
                 ]
             );
         }

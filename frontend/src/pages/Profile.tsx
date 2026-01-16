@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
     User, Mail, Phone, Edit2, ChevronRight, RefreshCw,
     TrendingUp, Wallet, Shield, Target, AlertCircle, CheckCircle2,
-    DollarSign, CreditCard, PiggyBank, Umbrella
+    DollarSign, CreditCard, PiggyBank, Umbrella, Download, ArrowLeft
 } from 'lucide-react';
 import { profileService } from '../services/api';
 import { ProfileEditModal } from '../components/profile/ProfileEditModal';
@@ -33,10 +33,10 @@ const Profile: React.FC = () => {
         }
     };
 
-    const handleEditComplete = () => {
+    const handleEditComplete = async () => {
         setShowEditModal(false);
-        fetchProfile();
-        navigate('/profile?updated=true');
+        await fetchProfile(); // Wait for profile to refresh
+        navigate('/dashboard?updated=true'); // Go to dashboard with success flag
     };
 
     // Calculate derived values
@@ -67,6 +67,37 @@ const Profile: React.FC = () => {
         return name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
     };
 
+    const [downloadingPDF, setDownloadingPDF] = useState(false);
+
+    const handleDownloadReport = async () => {
+        if (completionPercent < 80) return;
+        try {
+            setDownloadingPDF(true);
+            const token = localStorage.getItem('token');
+            const response = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'}/pdf/advisory-report`,
+                {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/pdf' }
+                }
+            );
+            if (!response.ok) throw new Error('Failed to generate PDF');
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `WealthMax_Advisory_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('PDF Error:', err);
+        } finally {
+            setDownloadingPDF(false);
+        }
+    };
+
     if (loading && !profile) {
         return (
             <div className="profile-loading">
@@ -78,6 +109,13 @@ const Profile: React.FC = () => {
 
     return (
         <div className="profile-page">
+            {/* Breadcrumb Navigation */}
+            <nav className="breadcrumb">
+                <Link to="/dashboard"><ArrowLeft size={14} /> Dashboard</Link>
+                <span>/</span>
+                <span className="current">My Profile</span>
+            </nav>
+
             {/* Section 1: Sticky Header */}
             <header className="profile-header">
                 <div className="header-content">
@@ -113,10 +151,21 @@ const Profile: React.FC = () => {
                             {profile?.risk_class || profile?.persona_data?.persona?.risk_appetite || 'Unassessed'}
                         </span>
                     </div>
-                    <button className="edit-btn" onClick={() => setShowEditModal(true)}>
-                        <Edit2 size={16} />
-                        Edit Profile
-                    </button>
+                    <div className="header-actions">
+                        <button
+                            className={`download-btn ${completionPercent < 80 ? 'disabled' : ''}`}
+                            onClick={handleDownloadReport}
+                            disabled={downloadingPDF || completionPercent < 80}
+                            title={completionPercent < 80 ? 'Complete 80% of profile to download' : 'Download Advisory Report'}
+                        >
+                            <Download size={16} />
+                            {downloadingPDF ? 'Generating...' : 'Download Report'}
+                        </button>
+                        <button className="edit-btn" onClick={() => setShowEditModal(true)}>
+                            <Edit2 size={16} />
+                            Edit Profile
+                        </button>
+                    </div>
                 </div>
             </header>
 

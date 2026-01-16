@@ -19,13 +19,15 @@ export class ProfileController {
             const riskClass = surveyData?.[0]?.final_class || undefined;
 
             // 1. Run Profiling Logic with Risk Class
+            console.log('Input emergency_fund_amount:', (input as any).emergency_fund_amount);
+            console.log('Input existing_assets:', input.existing_assets);
             const analysis = ProfilingService.analyze(input, riskClass);
             console.log('Analysis Result:', analysis);
 
             const profileData = {
                 user_id: userId,
                 age: input.age,
-                employment_type: (input as any).employment_type, // New
+                employment_type: (input as any).employment_type,
                 gross_income: input.gross_income,
                 monthly_emi: input.monthly_emi,
                 fixed_expenses: input.fixed_expenses,
@@ -35,25 +37,35 @@ export class ProfileController {
                 persona_data: analysis,
                 asset_types: (input as any).asset_types,
                 insurance_coverage: (input as any).insurance_coverage,
-                pan_number: (input as any).pan_number // New
+                pan_number: (input as any).pan_number,
+                // New fields that were missing
+                emergency_fund_amount: (input as any).emergency_fund_amount,
+                insurance_cover: (input as any).insurance_cover,
+                dependents: (input as any).dependents
             };
 
-            // 2. Check if profile exists
+            // 2. Check if profile exists and update FIRST
             const existing = await ProfileModel.findByUserId(userId);
-            let savedProfile;
-
-            // Extract Recommendations from Analysis and Save to DB
-            const recommendations = analysis.recommendations || [];
-            await ProfileModel.saveActionItems(userId, recommendations);
 
             if (existing) {
                 await ProfileModel.update(userId, profileData);
+                logger.debug('Profile updated successfully', { userId });
             } else {
                 await ProfileModel.create(profileData);
+                logger.debug('Profile created successfully', { userId });
             }
 
-            // Recalculate Health Score
-            savedProfile = await HealthService.recalculate(userId);
+            // 3. Extract Recommendations and Save Action Items (non-blocking)
+            const recommendations = analysis.recommendations || [];
+            try {
+                await ProfileModel.saveActionItems(userId, recommendations);
+                logger.debug('Action items saved', { count: recommendations.length });
+            } catch (actionError: any) {
+                logger.warn('Failed to save action items, continuing...', { error: actionError.message });
+            }
+
+            // 4. Recalculate Health Score
+            let savedProfile = await HealthService.recalculate(userId);
 
             // Map recommendations to frontend structure
             const actions = recommendations.map(rec => ({
@@ -69,12 +81,13 @@ export class ProfileController {
                 persona_context: rec.persona_context,
                 risk_type: rec.type
             }));
-            savedProfile = { ...savedProfile, action_items: actions };
+
+            const responseData = { ...savedProfile, action_items: actions };
 
             res.status(200).json({
                 success: true,
                 message: 'Profile updated with persona analysis',
-                data: savedProfile
+                data: responseData
             });
 
         } catch (error: any) {
@@ -120,7 +133,8 @@ export class ProfileController {
                 existing_assets: profile.existing_assets,
                 total_liabilities: profile.total_liabilities,
                 insurance_premium: profile.insurance_premium,
-                insurance_coverage: profile.insurance_coverage
+                insurance_coverage: profile.insurance_coverage,
+                emergency_fund_amount: profile.emergency_fund_amount // Add this field!
             };
             const analysis = ProfilingService.analyze(input, riskClass);
             const rawRecommendations = analysis.recommendations || [];
