@@ -13,4 +13,8 @@ router.post('/otp/verify', AuthController.loginOTP);
 router.post('/email-otp/send', authenticateToken, AuthController.sendEmailOTP);
 router.post('/email-otp/verify', authenticateToken, AuthController.verifyEmailOTP);
 
+// Password reset routes (public)
+router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/reset-password', AuthController.resetPassword);
+
 export default router;

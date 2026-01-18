@@ -1,15 +1,19 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
+import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import EmailVerification from './pages/auth/EmailVerification';
+import { ForgotPassword } from './pages/auth/ForgotPassword';
+import { ResetPassword } from './pages/auth/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Calculators from './pages/Calculators';
 import RiskAssessment from './pages/RiskAssessment';
 
 import Marketplace from './pages/Marketplace';
 import Profile from './pages/Profile';
+import { Settings } from './pages/Settings';
 
 // Protected Route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -37,6 +41,9 @@ const App: React.FC = () => {
     return (
         <BrowserRouter>
             <Routes>
+                {/* Landing Page */}
+                <Route path="/" element={<Landing />} />
+
                 {/* Public Routes */}
                 <Route
                     path="/login"
@@ -51,6 +58,22 @@ const App: React.FC = () => {
                     element={
                         <PublicRoute>
                             <Signup />
+                        </PublicRoute>
+                    }
+                />
+                <Route
+                    path="/forgot-password"
+                    element={
+                        <PublicRoute>
+                            <ForgotPassword />
+                        </PublicRoute>
+                    }
+                />
+                <Route
+                    path="/reset-password"
+                    element={
+                        <PublicRoute>
+                            <ResetPassword />
                         </PublicRoute>
                     }
                 />
@@ -78,13 +101,11 @@ const App: React.FC = () => {
                     <Route path="/risk-assessment" element={<RiskAssessment />} />
                     <Route path="/marketplace" element={<Marketplace />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/settings" element={<Settings />} />
                 </Route>
 
-                {/* Default redirect */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-                {/* 404 - Redirect to dashboard */}
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                {/* 404 - Redirect to landing */}
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>
     );

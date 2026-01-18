@@ -164,4 +164,67 @@ export class AuthController {
             });
         }
     }
+
+    /**
+     * Request password reset
+     */
+    static async forgotPassword(req: Request, res: Response) {
+        try {
+            const { email } = req.body;
+
+            if (!email) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Email is required'
+                });
+            }
+
+            const result = await AuthService.requestPasswordReset(email);
+            return res.status(200).json({
+                success: true,
+                message: result.message
+            });
+        } catch (error: any) {
+            logger.error('Forgot Password error', error);
+            return res.status(400).json({
+                success: false,
+                message: error.message || 'Failed to process password reset request'
+            });
+        }
+    }
+
+    /**
+     * Reset password with token
+     */
+    static async resetPassword(req: Request, res: Response) {
+        try {
+            const { token, newPassword } = req.body;
+
+            if (!token || !newPassword) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Token and new password are required'
+                });
+            }
+
+            if (newPassword.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Password must be at least 6 characters'
+                });
+            }
+
+            const result = await AuthService.resetPassword(token, newPassword);
+            return res.status(200).json({
+                success: true,
+                message: result.message
+            });
+        } catch (error: any) {
+            logger.error('Reset Password error', error);
+            return res.status(400).json({
+                success: false,
+                message: error.message || 'Failed to reset password'
+            });
+        }
+    }
 }

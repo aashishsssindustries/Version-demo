@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Download, CheckCircle2, ArrowRight, Calculator, User, TrendingUp } from 'lucide-react';
 import { profileService } from '../services/api';
 import './Dashboard.css';
@@ -7,9 +7,11 @@ import { OnboardingWizard } from '../components/onboarding/OnboardingWizard';
 import { InteractivePersonaCard } from '../components/dashboard/InteractivePersonaCard';
 import { HealthScoreCard } from '../components/dashboard/HealthScoreCard';
 import { ActionItemsGrid } from '../components/dashboard/ActionItemsGrid';
+import { ScoreTrendCard } from '../components/dashboard/ScoreTrendCard';
 import { checkProfileCompletion, getFlowGuardMessage } from '../utils/flowGuard';
 
 const Dashboard: React.FC = () => {
+    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -24,15 +26,17 @@ const Dashboard: React.FC = () => {
             setLoading(true);
             const profileData = await profileService.getProfile();
             setProfile(profileData);
+            setLoading(false);
         } catch (err: any) {
             if (err.response?.status === 404) {
-                setProfile(null);
+                // New user - show onboarding wizard to complete profile
+                setShowWizard(true);
+                setLoading(false);
             } else {
                 console.error('Error fetching profile:', err);
                 setError('Failed to load profile data');
+                setLoading(false);
             }
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -225,9 +229,18 @@ const Dashboard: React.FC = () => {
                     </div>
                 </section>
 
+                {/* Score Trend Section */}
+                <section className="trend-section">
+                    <ScoreTrendCard />
+                </section>
+
                 {/* Action Intelligence Section */}
                 <section className="action-section">
-                    <ActionItemsGrid actionItems={actionItems} hasProfile={!!profile} />
+                    <ActionItemsGrid
+                        actionItems={actionItems}
+                        hasProfile={!!profile}
+                        onActionUpdate={fetchProfile}
+                    />
                 </section>
             </main>
 

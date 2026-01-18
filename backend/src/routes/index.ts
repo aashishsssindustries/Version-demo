@@ -6,12 +6,14 @@ import surveyRoutes from './survey.routes';
 import calculatorRoutes from './calculator.routes';
 import pdfRoutes from './pdf.routes';
 import marketplaceRoutes from './marketplace.routes';
+import userRoutes from './user.routes';
 
 const router = Router();
 
 // API v1 routes
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
+router.use('/user', userRoutes);
 router.use('/profile', profileRoutes);
 router.use('/survey', surveyRoutes);
 router.use('/calculators', calculatorRoutes);

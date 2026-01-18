@@ -4,6 +4,7 @@ import {
     AlertTriangle, ChevronRight, Zap, Clock, CheckCircle2,
     Shield, TrendingUp, Wallet, Target, PlayCircle
 } from 'lucide-react';
+import { profileService } from '../../services/api';
 import './ActionItemsGrid.css';
 
 interface ActionItem {
@@ -23,10 +24,28 @@ interface ActionItem {
 interface ActionItemsGridProps {
     actionItems: ActionItem[];
     hasProfile: boolean;
+    onActionUpdate?: () => void;
 }
 
-export const ActionItemsGrid: React.FC<ActionItemsGridProps> = ({ actionItems, hasProfile }) => {
+export const ActionItemsGrid: React.FC<ActionItemsGridProps> = ({ actionItems, hasProfile, onActionUpdate }) => {
     const [filter, setFilter] = useState<string>('all');
+    const [updating, setUpdating] = useState<string | null>(null);
+
+    const handleMarkDone = async (e: React.MouseEvent, id: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (updating) return;
+
+        try {
+            setUpdating(id);
+            await profileService.updateActionItemStatus(id, 'resolved');
+            if (onActionUpdate) onActionUpdate();
+        } catch (err) {
+            console.error('Failed to update status', err);
+        } finally {
+            setUpdating(null);
+        }
+    };
 
     if (!hasProfile) {
         return (
@@ -147,7 +166,7 @@ export const ActionItemsGrid: React.FC<ActionItemsGridProps> = ({ actionItems, h
             {/* Action Items Grid */}
             <div className="items-grid">
                 {filteredItems.map((item, index) => (
-                    <div key={item.id || index} className={`action-item priority-${item.priority.toLowerCase()}`}>
+                    <div key={item.id || index} className={`action-item priority-${item.priority.toLowerCase()} ${item.status === 'resolved' ? 'resolved' : ''}`}>
                         {/* Priority Badge */}
                         <div className={`priority-badge ${item.priority.toLowerCase()}`}>
                             {item.priority}
@@ -186,10 +205,22 @@ export const ActionItemsGrid: React.FC<ActionItemsGridProps> = ({ actionItems, h
                             )}
                         </div>
 
-                        {/* CTA */}
-                        <Link to={getToolLink(item)} className="item-cta">
-                            Fix Now <ChevronRight size={16} />
-                        </Link>
+                        {/* Actions */}
+                        <div className="item-actions">
+                            {item.status !== 'resolved' && item.id && (
+                                <button
+                                    className="btn-mark-done"
+                                    onClick={(e) => handleMarkDone(e, item.id!)}
+                                    disabled={updating === item.id}
+                                    title="Mark as Done"
+                                >
+                                    {updating === item.id ? <Clock size={16} className="spin" /> : <CheckCircle2 size={16} />}
+                                </button>
+                            )}
+                            <Link to={getToolLink(item)} className="item-cta">
+                                Fix Now <ChevronRight size={16} />
+                            </Link>
+                        </div>
                     </div>
                 ))}
             </div>

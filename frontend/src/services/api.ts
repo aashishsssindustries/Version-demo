@@ -33,9 +33,8 @@ apiClient.interceptors.response.use(
             window.location.href = '/login';
         }
 
-        // Return structured error with message
-        const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
-        return Promise.reject(new Error(errorMessage));
+        // Preserve the original error with response for status code checking
+        return Promise.reject(error);
     }
 );
 
@@ -58,6 +57,23 @@ export const authService = {
         const response = await apiClient.post('/auth/otp/verify', { mobile, otp });
         return response.data;
     },
+    // Email OTP methods
+    sendEmailOTP: async () => {
+        const response = await apiClient.post('/auth/email-otp/send');
+        return response.data;
+    },
+    verifyEmailOTP: async (otp: string) => {
+        const response = await apiClient.post('/auth/email-otp/verify', { otp });
+        return response.data;
+    },
+    forgotPassword: async (email: string) => {
+        const response = await apiClient.post('/auth/forgot-password', { email });
+        return response.data;
+    },
+    resetPassword: async (token: string, newPassword: string) => {
+        const response = await apiClient.post('/auth/reset-password', { token, newPassword });
+        return response.data;
+    },
     logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -75,6 +91,29 @@ export const profileService = {
     },
     getNextBestAction: async () => {
         const response = await apiClient.get('/profile/next-best-action');
+        return response.data;
+    },
+    updateActionItemStatus: async (id: string, status: string) => {
+        const response = await apiClient.put(`/profile/action-items/${id}/status`, { status });
+        return response.data;
+    },
+    getScoreHistory: async (limit: number = 30) => {
+        const response = await apiClient.get(`/profile/score-history?limit=${limit}`);
+        return response.data;
+    },
+};
+
+export const userService = {
+    getCurrentUser: async () => {
+        const response = await apiClient.get('/user/me');
+        return response.data;
+    },
+    updateProfile: async (data: { name?: string; mobile?: string }) => {
+        const response = await apiClient.put('/user/profile', data);
+        return response.data;
+    },
+    changePassword: async (currentPassword: string, newPassword: string) => {
+        const response = await apiClient.put('/user/change-password', { currentPassword, newPassword });
         return response.data;
     },
 };

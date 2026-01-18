@@ -225,8 +225,11 @@ export class ProfilingService {
         const savingsRate = monthlyIncome > 0 ? monthlySurplus / monthlyIncome : 0;
 
         // --- RULE 1: Emergency Fund Shortfall (Graduated Priority) ---
-        // Use emergency_fund_amount if available, otherwise fall back to existing_assets (30% assumed as liquid)
-        const emergencyFund = input.emergency_fund_amount || (input.existing_assets * 0.3);
+        // Use emergency_fund_amount if available (>0), otherwise fall back to existing_assets (30% assumed as liquid)
+        const storedEF = Number(input.emergency_fund_amount) || 0;
+        const assets = Number(input.existing_assets) || 0;
+        const emergencyFund = storedEF > 0 ? storedEF : (assets * 0.3);
+
         const liquidityMonths = monthlyExpenses > 0 ? emergencyFund / monthlyExpenses : 0;
 
         if (liquidityMonths < 1) {
@@ -281,12 +284,17 @@ export class ProfilingService {
 
         // --- RULE 2: Under-Insurance ---
         // Condition: Life cover < (Annual income × 10 + liabilities)
-        const requiredCover = (10 * input.gross_income) + input.total_liabilities;
-        const currentCover = input.insurance_coverage || 0;
+        // --- RULE 2: Under-Insurance ---
+        // Condition: Life cover < (Annual income × 10 + liabilities)
+        const income = Number(input.gross_income) || 0;
+        const liabilities = Number(input.total_liabilities) || 0;
+        const currentCover = Number(input.insurance_coverage) || 0;
+
+        const requiredCover = (10 * income) + liabilities;
 
         if (currentCover < requiredCover) {
             const protectionGap = requiredCover - currentCover;
-            const severity = protectionGap > (5 * input.gross_income) ? 'High' : 'Medium';
+            const severity = protectionGap > (5 * income) ? 'High' : 'Medium';
 
             recs.push({
                 id: 'insurance-gap',

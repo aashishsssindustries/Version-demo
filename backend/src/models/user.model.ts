@@ -11,6 +11,8 @@ export interface User {
     role: 'user' | 'admin';
     is_email_verified: boolean;
     is_mobile_verified: boolean;
+    reset_password_token?: string;
+    reset_password_expires?: Date;
     created_at: Date;
     updated_at: Date;
 }
@@ -50,6 +52,62 @@ export class UserModel {
         if (!result.rows[0]) {
             throw new Error('User not found');
         }
+        return result.rows[0];
+    }
+
+    static async saveResetToken(email: string, token: string, expires: Date): Promise<User> {
+        const result = await db.query(
+            'UPDATE users SET reset_password_token = $1, reset_password_expires = $2, updated_at = NOW() WHERE email = $3 RETURNING *',
+            [token, expires, email]
+        );
+        return result.rows[0];
+    }
+
+    static async findByResetToken(token: string): Promise<User | null> {
+        const result = await db.query(
+            'SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > NOW()',
+            [token]
+        );
+        return result.rows[0] || null;
+    }
+
+    static async updatePassword(userId: string, passwordHash: string): Promise<User> {
+        const result = await db.query(
+            'UPDATE users SET password_hash = $1, reset_password_token = NULL, reset_password_expires = NULL, updated_at = NOW() WHERE id = $2 RETURNING *',
+            [passwordHash, userId]
+        );
+        return result.rows[0];
+    }
+
+    static async updateProfile(userId: string, updates: { name?: string; mobile?: string }): Promise<User> {
+        const fields: string[] = [];
+        const values: any[] = [];
+        let paramIndex = 1;
+
+        if (updates.name) {
+            fields.push(`name = $${paramIndex++}`);
+            values.push(updates.name);
+        }
+
+        if (updates.mobile) {
+            fields.push(`mobile = $${paramIndex++}`);
+            values.push(updates.mobile);
+        }
+
+        if (fields.length === 0) {
+            throw new Error('No fields to update');
+        }
+
+        fields.push(`updated_at = NOW()`);
+        values.push(userId);
+
+        const query = `UPDATE users SET ${fields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+        const result = await db.query(query, values);
+
+        if (!result.rows[0]) {
+            throw new Error('User not found');
+        }
+
         return result.rows[0];
     }
 }

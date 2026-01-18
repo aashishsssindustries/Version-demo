@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ===================================
    WealthMax - Global Styles
    Production SaaS Fintech UI

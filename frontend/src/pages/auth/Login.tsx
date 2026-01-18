@@ -24,6 +24,8 @@ const Login: React.FC = () => {
             localStorage.setItem('token', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
 
+            window.dispatchEvent(new Event('auth-change'));
+
             // Navigate to dashboard
             navigate('/dashboard');
         } catch (err: any) {
@@ -76,6 +78,12 @@ const Login: React.FC = () => {
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             required
                         />
+                    </div>
+
+                    <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+                        <Link to="/forgot-password" className="link" style={{ fontSize: '14px' }}>
+                            Forgot password?
+                        </Link>
                     </div>
 
                     <button type="submit" className="btn btn-primary btn-full" disabled={loading}>

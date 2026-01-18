@@ -29,6 +29,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ profile, onC
         insurance_premium: profile?.insurance_premium || 0,
         insurance_cover: profile?.insurance_cover || profile?.insurance_coverage || 0,
         dependents: profile?.dependents || 0,
+        pan_number: profile?.pan_number || '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +129,21 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ profile, onC
                     {step === 1 && (
                         <div className="step-content">
                             <p className="step-desc">Enter your monthly income and regular expenses.</p>
+                            {/* PAN Field - Text type override */}
+                            <div className="field-group">
+                                <label>PAN Number</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">#</span>
+                                    <input
+                                        type="text"
+                                        name="pan_number"
+                                        value={formData.pan_number || ''}
+                                        onChange={(e) => setFormData({ ...formData, pan_number: e.target.value.toUpperCase() })}
+                                        placeholder="ABCDE1234F"
+                                        maxLength={10}
+                                    />
+                                </div>
+                            </div>
                             {renderField('Annual Gross Income', 'gross_income', '₹', 'Total yearly income before taxes')}
                             {renderField('Monthly Fixed Expenses', 'fixed_expenses', '₹', 'Rent, utilities, groceries, etc.')}
                             {renderField('Monthly EMI / Debt Payments', 'monthly_emi', '₹', 'All loan EMIs combined')}

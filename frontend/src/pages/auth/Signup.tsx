@@ -45,6 +45,8 @@ const Signup: React.FC = () => {
             localStorage.setItem('token', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
 
+            window.dispatchEvent(new Event('auth-change'));
+
             // Navigate to dashboard
             navigate('/dashboard');
         } catch (err: any) {

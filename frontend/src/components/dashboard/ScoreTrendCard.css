@@ -1,0 +1,88 @@
+.score-trend-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.card-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 4px 0 0 0;
+}
+
+.trend-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.trend-badge.up {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.trend-badge.down {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.trend-badge.stable {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.current-score {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.score-label {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.score-value {
+    font-size: 36px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.chart-container {
+    margin-top: 16px;
+}
+
+.loading-state,
+.empty-state {
+    padding: 40px 0;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 14px;
+}

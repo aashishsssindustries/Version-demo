@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calculator, Shield, ShoppingBag } from 'lucide-react';
+import { LayoutDashboard, Calculator, Shield, ShoppingBag, Settings } from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar: React.FC = () => {
@@ -24,6 +24,11 @@ const Sidebar: React.FC = () => {
             path: '/risk-assessment',
             icon: Shield,
             label: 'Risk Assessment',
+        },
+        {
+            path: '/settings',
+            icon: Settings,
+            label: 'Settings',
         },
     ];
 

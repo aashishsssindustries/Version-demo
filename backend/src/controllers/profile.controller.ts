@@ -67,7 +67,21 @@ export class ProfileController {
             // 4. Recalculate Health Score
             let savedProfile = await HealthService.recalculate(userId);
 
-            // Map recommendations to frontend structure
+            if (!savedProfile) {
+                throw new Error('Failed to recalculate health score');
+            }
+
+            // 5. Save Score History
+            try {
+                const { ScoreHistoryModel } = await import('../models/scoreHistory.model');
+                const personaLabel = (savedProfile.persona_data as any)?.persona?.name;
+                await ScoreHistoryModel.saveScore(userId, savedProfile.health_score, personaLabel);
+                logger.debug('Score history saved', { score: savedProfile.health_score });
+            } catch (historyError: any) {
+                logger.warn('Failed to save score history', { error: historyError.message });
+            }
+
+            // 6. Map recommendations to frontend structure
             const actions = recommendations.map(rec => ({
                 id: rec.id,
                 title: rec.title,
@@ -176,6 +190,29 @@ export class ProfileController {
         }
     }
 
+    static async updateActionItemStatus(req: Request, res: Response) {
+        try {
+            const userId = (req as any).user.id;
+            const { id } = req.params;
+            const { status } = req.body;
+
+            if (!['pending', 'completed', 'dismissed'].includes(status)) {
+                return res.status(400).json({ success: false, message: 'Invalid status' });
+            }
+
+            const updated = await ProfileModel.updateActionItemStatus(id, status, userId);
+
+            if (!updated) {
+                return res.status(404).json({ success: false, message: 'Action item not found' });
+            }
+
+            return res.json({ success: true, data: updated });
+        } catch (error) {
+            console.error('Action Update Error:', error);
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
     /**
      * Get Next Best Action for user
      */
@@ -200,6 +237,30 @@ export class ProfileController {
             res.status(500).json({
                 success: false,
                 message: 'Failed to get next best action'
+            });
+        }
+    }
+
+    /**
+     * Get score history for trend visualization
+     */
+    static async getScoreHistory(req: Request, res: Response) {
+        try {
+            const userId = (req as any).user.id;
+            const limit = parseInt(req.query.limit as string) || 30;
+
+            const { ScoreHistoryModel } = await import('../models/scoreHistory.model');
+            const history = await ScoreHistoryModel.getHistory(userId, limit);
+
+            return res.json({
+                success: true,
+                data: history
+            });
+        } catch (error: any) {
+            logger.error('Get Score History Error', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch score history'
             });
         }
     }

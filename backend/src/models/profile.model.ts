@@ -161,8 +161,8 @@ export class ProfileModel {
         for (const item of items) {
             await db.query(
                 `INSERT INTO action_items 
-                 (user_id, title, description, category, risk_type, severity, gap_amount, estimated_score_impact, status)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                 (user_id, title, description, category, risk_type, severity, gap_amount, estimated_score_impact, status, linked_tool, persona_context, action_text)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
                 [
                     userId,
                     item.title || item.type || 'Action Required',
@@ -172,7 +172,11 @@ export class ProfileModel {
                     item.priority || 'Medium',
                     item.gap || 0,
                     parseInt(item.scoreImpact?.replace?.(/\D/g, '') || item.scoreImpact || '0'),
-                    'pending'
+                    'pending',
+                    // New context fields
+                    item.linked_tool || null,
+                    item.persona_context || null,
+                    item.action || item.description || null
                 ]
             );
         }
@@ -181,5 +185,13 @@ export class ProfileModel {
     static async getActionItems(userId: string) {
         const result = await db.query('SELECT * FROM action_items WHERE user_id = $1 ORDER BY severity DESC, estimated_score_impact DESC', [userId]);
         return result.rows;
+    }
+
+    static async updateActionItemStatus(itemId: string, status: string, userId: string) {
+        const result = await db.query(
+            'UPDATE action_items SET status = $1 WHERE id = $2 AND user_id = $3 RETURNING *',
+            [status, itemId, userId]
+        );
+        return result.rows[0];
     }
 }

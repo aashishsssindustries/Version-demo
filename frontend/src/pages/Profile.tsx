@@ -26,8 +26,12 @@ const Profile: React.FC = () => {
             setLoading(true);
             const data = await profileService.getProfile();
             setProfile(data);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Failed to fetch profile', err);
+            // If 404, this is a new user - automatically open edit modal
+            if (err.response?.status === 404) {
+                setShowEditModal(true);
+            }
         } finally {
             setLoading(false);
         }
@@ -39,18 +43,36 @@ const Profile: React.FC = () => {
         navigate('/dashboard?updated=true'); // Go to dashboard with success flag
     };
 
+    // Debug Profile Data
+    useEffect(() => {
+        if (profile) {
+            console.log('Profile Data Loaded:', {
+                income: profile.gross_income,
+                assets: profile.existing_assets,
+                insurance_coverage: profile.insurance_coverage,
+                insurance_cover: profile.insurance_cover,
+                emergency_amount: profile.emergency_fund_amount,
+                raw: profile
+            });
+        }
+    }, [profile]);
+
     // Calculate derived values
     const monthlyIncome = profile?.gross_income ? profile.gross_income / 12 : 0;
     const monthlyExpenses = profile?.fixed_expenses || 0;
     const monthlyEMI = profile?.monthly_emi || 0;
     const netSurplus = monthlyIncome - monthlyExpenses - monthlyEMI;
 
-    const existingAssets = profile?.existing_assets || 0;
-    const emergencyFund = profile?.emergency_fund_amount || existingAssets * 0.3;
+    const existingAssets = Number(profile?.existing_assets) || 0;
+
+    // Fallback Logic: Use stored emergency fund ONLY if > 0. Otherwise use 30% of assets.
+    const storedEF = Number(profile?.emergency_fund_amount) || 0;
+    const emergencyFund = storedEF > 0 ? storedEF : (existingAssets * 0.3);
+
     const emergencyMonths = monthlyExpenses > 0 ? emergencyFund / monthlyExpenses : 0;
 
     const insurancePremium = profile?.insurance_premium || 0;
-    const lifeCover = profile?.insurance_cover || profile?.insurance_coverage || 0;
+    const lifeCover = Number(profile?.insurance_cover) || Number(profile?.insurance_coverage) || 0;
     const idealCover = monthlyIncome * 12 * 10; // 10x annual income
     const coverageAdequacy = lifeCover >= idealCover ? 'Adequate' : 'Under-insured';
 

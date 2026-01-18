@@ -38,10 +38,14 @@ export const InteractivePersonaCard: React.FC<InteractivePersonaCardProps> = ({ 
     }
 
     const { persona } = profile.persona_data;
-    const monthlyIncome = profile.gross_income || 0;
+    const monthlyIncome = (profile.gross_income || 0) / 12;
     const monthlyExpenses = profile.fixed_expenses || 0;
     const monthlyEMI = profile.monthly_emi || 0;
-    const emergencyFund = profile.emergency_fund_amount || profile.existing_assets || 0;
+
+    // Fallback: If emergency fund is 0/missing, assume 30% of existing assets
+    const storedEF = Number(profile.emergency_fund_amount) || 0;
+    const assets = Number(profile.existing_assets) || 0;
+    const emergencyFund = storedEF > 0 ? storedEF : (assets * 0.3);
 
     // Calculate ratios
     const expenseRatio = monthlyIncome > 0 ? (monthlyExpenses / monthlyIncome) * 100 : 0;

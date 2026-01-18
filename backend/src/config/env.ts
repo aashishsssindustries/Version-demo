@@ -16,6 +16,7 @@ interface EnvConfig {
     SMTP_USER: string;
     SMTP_PASS: string;
     EMAIL_FROM: string;
+    FRONTEND_URL: string;
 }
 
 class Config {
@@ -37,6 +38,7 @@ class Config {
             SMTP_USER: process.env.SMTP_USER || '',
             SMTP_PASS: process.env.SMTP_PASS || '',
             EMAIL_FROM: process.env.EMAIL_FROM || 'WealthMax <noreply@wealthmax.com>',
+            FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
         };
 
         this.validate();

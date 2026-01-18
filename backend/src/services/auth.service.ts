@@ -144,6 +144,59 @@ export class AuthService {
         };
     }
 
+    /**
+     * Request password reset - sends email with reset token
+     */
+    static async requestPasswordReset(email: string) {
+        const user = await UserModel.findByEmail(email);
+
+        // Security: Don't reveal if email exists
+        if (!user) {
+            return { message: 'If that email exists, a reset link has been sent' };
+        }
+
+        // Generate secure random token
+        const crypto = require('crypto');
+        const resetToken = crypto.randomBytes(32).toString('hex');
+
+        // Hash token before storing (security best practice)
+        const hashedToken = hashData(resetToken);
+
+        // Token expires in 1 hour
+        const expires = new Date();
+        expires.setHours(expires.getHours() + 1);
+
+        // Save hashed token to database
+        await UserModel.saveResetToken(email, hashedToken, expires);
+
+        // Send email with unhashed token
+        const { EmailService } = await import('./email.service');
+        await EmailService.sendPasswordResetEmail(email, resetToken, user.name);
+
+        return { message: 'If that email exists, a reset link has been sent' };
+    }
+
+    /**
+     * Reset password using token
+     */
+    static async resetPassword(token: string, newPassword: string) {
+        // Hash the token to find it in database
+        const hashedToken = hashData(token);
+
+        const user = await UserModel.findByResetToken(hashedToken);
+        if (!user) {
+            throw new Error('Invalid or expired reset token');
+        }
+
+        // Hash new password
+        const passwordHash = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
+
+        // Update password and clear reset token
+        await UserModel.updatePassword(user.id, passwordHash);
+
+        return { message: 'Password reset successful. You can now login with your new password.' };
+    }
+
     private static generateToken(user: User) {
         return jwt.sign(
             { id: user.id, email: user.email, role: user.role },

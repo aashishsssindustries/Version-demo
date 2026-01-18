@@ -7,6 +7,8 @@ const router = Router();
 
 router.get('/', authenticateToken, ProfileController.getProfile);
 router.post('/update', authenticateToken, ProfileController.updateProfile);
+router.put('/action-items/:id/status', authenticateToken, ProfileController.updateActionItemStatus);
+router.get('/score-history', authenticateToken, ProfileController.getScoreHistory);
 router.get('/next-best-action', authenticateToken, ProfileController.getNextBestAction);
 
 export default router;
