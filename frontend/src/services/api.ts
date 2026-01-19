@@ -213,3 +213,28 @@ export const calculatorService = {
     calculateHomeAffordability: async (input: HomeAffordabilityInput) => (await apiClient.post('/calculators/home-affordability', input)).data,
     calculateCAGR: async (input: CAGRInput) => (await apiClient.post('/calculators/cagr', input)).data,
 };
+
+// ============================================
+// Portfolio Service (Phase 2)
+// ============================================
+export const portfolioService = {
+    getHoldings: async () => {
+        const response = await apiClient.get('/portfolio/holdings');
+        return response.data;
+    },
+    addManualHolding: async (isin: string, asset_type: string, quantity: number) => {
+        const response = await apiClient.post('/portfolio/manual', { isin, asset_type, quantity });
+        return response.data;
+    },
+    uploadCSV: async (csv: string) => {
+        const response = await apiClient.post('/portfolio/upload-csv', { csv });
+        return response.data;
+    },
+    deleteHolding: async (holdingId: string) => {
+        // Use axios directly to avoid the response interceptor unwrapping
+        // Delete returns { success, message } not { success, data }
+        const response = await apiClient.delete(`/portfolio/holdings/${holdingId}`);
+        // The interceptor may have unwrapped, so check both scenarios
+        return response.data ?? response;
+    },
+};

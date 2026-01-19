@@ -17,6 +17,9 @@ interface EnvConfig {
     SMTP_PASS: string;
     EMAIL_FROM: string;
     FRONTEND_URL: string;
+    REDIS_URL: string;
+    MFAPI_BASE_URL: string;
+    CAPTNEMO_BASE_URL: string;
 }
 
 class Config {
@@ -39,6 +42,9 @@ class Config {
             SMTP_PASS: process.env.SMTP_PASS || '',
             EMAIL_FROM: process.env.EMAIL_FROM || 'WealthMax <noreply@wealthmax.com>',
             FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
+            REDIS_URL: process.env.REDIS_URL || '',
+            MFAPI_BASE_URL: process.env.MFAPI_BASE_URL || 'https://api.mfapi.in',
+            CAPTNEMO_BASE_URL: process.env.CAPTNEMO_BASE_URL || 'https://mf.captnemo.in',
         };
 
         this.validate();

@@ -7,6 +7,8 @@ import calculatorRoutes from './calculator.routes';
 import pdfRoutes from './pdf.routes';
 import marketplaceRoutes from './marketplace.routes';
 import userRoutes from './user.routes';
+import portfolioRoutes from './portfolio.routes';
+import mutualFundRoutes from './mutualFund.routes';
 
 const router = Router();
 
@@ -19,8 +21,8 @@ router.use('/survey', surveyRoutes);
 router.use('/calculators', calculatorRoutes);
 router.use('/pdf', pdfRoutes);
 router.use('/marketplace', marketplaceRoutes);
-
-// Future routes will be added here
-// router.use('/portfolio', portfolioRoutes);
+router.use('/portfolio', portfolioRoutes);
+router.use('/mutual-funds', mutualFundRoutes);
 
 export default router;
+

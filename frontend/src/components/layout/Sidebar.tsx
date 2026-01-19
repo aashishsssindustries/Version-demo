@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calculator, Shield, ShoppingBag, Settings } from 'lucide-react';
+import { LayoutDashboard, Calculator, Shield, ShoppingBag, Briefcase, Settings } from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar: React.FC = () => {
@@ -14,6 +14,11 @@ const Sidebar: React.FC = () => {
             path: '/marketplace',
             icon: ShoppingBag,
             label: 'Marketplace',
+        },
+        {
+            path: '/portfolio',
+            icon: Briefcase,
+            label: 'Portfolio',
         },
         {
             path: '/calculators',
