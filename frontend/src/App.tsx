@@ -14,6 +14,7 @@ import RiskAssessment from './pages/RiskAssessment';
 import Marketplace from './pages/Marketplace';
 import Profile from './pages/Profile';
 import Portfolio from './pages/Portfolio';
+import PortfolioInsights from './pages/PortfolioInsights';
 import { Settings } from './pages/Settings';
 
 // Protected Route wrapper
@@ -102,6 +103,7 @@ const App: React.FC = () => {
                     <Route path="/risk-assessment" element={<RiskAssessment />} />
                     <Route path="/marketplace" element={<Marketplace />} />
                     <Route path="/portfolio" element={<Portfolio />} />
+                    <Route path="/portfolio-insights" element={<PortfolioInsights />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/settings" element={<Settings />} />
                 </Route>

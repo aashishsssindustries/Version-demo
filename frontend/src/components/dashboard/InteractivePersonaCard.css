@@ -265,14 +265,49 @@
 
 /* Deviation Insight Bar */
 .deviation-insight-bar {
-    background: #fef3c7;
-    border: 1px solid #fcd34d;
     border-radius: 8px;
     padding: 10px 14px;
     display: flex;
     justify-content: space-between;
     font-size: 12px;
     margin-bottom: 16px;
+    align-items: center;
+}
+
+.deviation-insight-bar.neutral {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.deviation-insight-bar.positive {
+    background: #f0fdf4;
+    border: 1px solid #bbe5d1;
+}
+
+.deviation-insight-bar.negative {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+}
+
+.deviation-insight-bar.neutral .insight-label,
+.deviation-insight-bar.neutral .insight-value {
+    color: #64748b;
+}
+
+.deviation-insight-bar.positive .insight-label {
+    color: #15803d;
+}
+
+.deviation-insight-bar.positive .insight-value {
+    color: #166534;
+}
+
+.deviation-insight-bar.negative .insight-label {
+    color: #b45309;
+}
+
+.deviation-insight-bar.negative .insight-value {
+    color: #9a3412;
 }
 
 .insight-label {
