@@ -277,4 +277,20 @@ export const portfolioService = {
         const response = await apiClient.get('/portfolio/alignment');
         return response.data;
     },
+    downloadReport: async () => {
+        const response = await apiClient.get('/portfolio/report/pdf', {
+            responseType: 'blob' // Important for PDF download
+        });
+        return response.data;
+    },
+};
+
+// ============================================
+// Analytics Service (Phase 2)
+// ============================================
+export const analyticsService = {
+    getPortfolioSnapshot: async () => {
+        const response = await apiClient.get('/analytics/portfolio-snapshot');
+        return response.data;
+    },
 };
