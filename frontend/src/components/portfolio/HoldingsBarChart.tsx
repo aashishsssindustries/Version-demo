@@ -24,8 +24,8 @@ interface HoldingsBarChartProps {
 }
 
 const COLORS = {
-    EQUITY: '#22c55e',
-    MUTUAL_FUND: '#6366f1'
+    EQUITY: '#10b981', // Emerald 500
+    MUTUAL_FUND: '#6366f1' // Indigo 500
 };
 
 const HoldingsBarChart: React.FC<HoldingsBarChartProps> = ({ holdings, maxItems = 8 }) => {
@@ -55,13 +55,13 @@ const HoldingsBarChart: React.FC<HoldingsBarChartProps> = ({ holdings, maxItems 
             const data = payload[0].payload;
             const color = COLORS[data.type as keyof typeof COLORS];
             return (
-                <div className="chart-tooltip">
+                <div className="chart-tooltip" style={{ background: '#1e293b', color: '#f8fafc', border: 'none' }}>
                     <div className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }}></div>
-                        <p className="tooltip-label mb-0">{data.fullName}</p>
+                        <p className="tooltip-label mb-0" style={{ color: '#e2e8f0' }}>{data.fullName}</p>
                     </div>
-                    <p className="tooltip-value">₹{data.value.toLocaleString('en-IN')}</p>
-                    <p className="tooltip-type mt-1">{data.type === 'MUTUAL_FUND' ? 'Mutual Fund' : 'Equity'}</p>
+                    <p className="tooltip-value" style={{ fontFamily: 'Roboto Mono' }}>₹{data.value.toLocaleString('en-IN')}</p>
+                    <p className="tooltip-type mt-1 text-xs text-slate-400">{data.type === 'MUTUAL_FUND' ? 'Mutual Fund' : 'Equity'}</p>
                 </div>
             );
         }
@@ -84,19 +84,29 @@ const HoldingsBarChart: React.FC<HoldingsBarChartProps> = ({ holdings, maxItems 
                     layout="vertical"
                     margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
                 >
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" horizontal={false} />
-                    <XAxis type="number" tickFormatter={formatYAxis} stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+                    <XAxis
+                        type="number"
+                        tickFormatter={formatYAxis}
+                        stroke="#94a3b8"
+                        fontSize={10}
+                        tickLine={false}
+                        axisLine={false}
+                        fontFamily="Roboto Mono"
+                    />
                     <YAxis
                         type="category"
                         dataKey="name"
                         stroke="#64748b"
                         width={100}
-                        fontSize={12}
+                        fontSize={11}
+                        fontWeight={500}
                         tickLine={false}
                         axisLine={false}
+                        fontFamily="Inter"
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f5f9', opacity: 0.5 }} />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
                         {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[entry.type]} />
                         ))}

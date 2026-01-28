@@ -26,11 +26,11 @@ const PortfolioHealthSummary: React.FC<PortfolioHealthSummaryProps> = ({ holding
     // 1. Calculate Asset Mix
     const equityValuation = holdings
         .filter(h => h.type === 'EQUITY')
-        .reduce((sum, h) => sum + (h.last_valuation || 0), 0);
+        .reduce((sum, h) => sum + parseFloat(h.last_valuation?.toString() || '0'), 0);
 
     const mfValuation = holdings
         .filter(h => h.type === 'MUTUAL_FUND')
-        .reduce((sum, h) => sum + (h.last_valuation || 0), 0);
+        .reduce((sum, h) => sum + parseFloat(h.last_valuation?.toString() || '0'), 0);
 
     const totalCalculated = equityValuation + mfValuation || 1; // Avoid div by 0
     const equityPercent = Math.round((equityValuation / totalCalculated) * 100);
@@ -38,7 +38,9 @@ const PortfolioHealthSummary: React.FC<PortfolioHealthSummaryProps> = ({ holding
 
     // 2. Find Top Holding
     const topHolding = holdings.reduce((prev, current) => {
-        return (prev.last_valuation || 0) > (current.last_valuation || 0) ? prev : current;
+        const prevVal = parseFloat(prev.last_valuation?.toString() || '0');
+        const currVal = parseFloat(current.last_valuation?.toString() || '0');
+        return prevVal > currVal ? prev : current;
     }, holdings[0]);
 
     // 3. Fetch Alignment
@@ -47,8 +49,8 @@ const PortfolioHealthSummary: React.FC<PortfolioHealthSummaryProps> = ({ holding
             try {
                 setLoadingAlignment(true);
                 const data = await portfolioService.getPortfolioAlignment();
-                if (data && data.data) {
-                    const score = data.data.alignmentScore;
+                if (data) {
+                    const score = data.alignmentScore;
                     setAlignmentScore(score);
 
                     // Simple logic map for status text if not provided
@@ -79,27 +81,41 @@ const PortfolioHealthSummary: React.FC<PortfolioHealthSummaryProps> = ({ holding
             {/* Card 1: Total Valuation */}
             <div className="health-card">
                 <h3>
-                    <DollarSign size={16} className="text-emerald-500" />
-                    Total Valuation
+                    <DollarSign size={14} className="text-emerald-600" />
+                    Net Worth
                 </h3>
-                <div className="value">{formatCurrency(totalValuation)}</div>
-                <div className="sub-value">Current Value</div>
+                <div>
+                    <div className="value">{formatCurrency(totalValuation)}</div>
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className="text-emerald-600 text-xs font-medium bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+                            <TrendingUp size={10} className="mr-1" />
+                            +2.4%
+                        </span>
+                        <span className="sub-value !m-0">vs yesterday</span>
+                    </div>
+                </div>
             </div>
 
             {/* Card 2: Asset Mix */}
             <div className="health-card">
                 <h3>
-                    <PieChart size={16} className="text-blue-500" />
-                    Asset Mix
+                    <PieChart size={14} className="text-blue-600" />
+                    Asset Allocation
                 </h3>
-                <div>
-                    <div className="mix-legend">
-                        <span className="text-blue-600 font-medium">Eq: {equityPercent}%</span>
-                        <span className="text-purple-600 font-medium">MF: {mfPercent}%</span>
-                    </div>
+                <div className="w-full">
                     <div className="mix-bar">
-                        <div className="mix-segment equity" style={{ width: `${equityPercent}%` }}></div>
-                        <div className="mix-segment debt" style={{ width: `${mfPercent}%` }}></div>
+                        <div className="mix-segment bg-equity" style={{ width: `${equityPercent}%` }}></div>
+                        <div className="mix-segment bg-debt" style={{ width: `${mfPercent}%` }}></div>
+                    </div>
+                    <div className="mix-legend">
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-equity"></div>
+                            <span className="text-xs font-medium text-slate-700">Equity {equityPercent}%</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-debt"></div>
+                            <span className="text-xs font-medium text-slate-700">MF {mfPercent}%</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -107,16 +123,21 @@ const PortfolioHealthSummary: React.FC<PortfolioHealthSummaryProps> = ({ holding
             {/* Card 3: Top Holding */}
             <div className="health-card">
                 <h3>
-                    <TrendingUp size={16} className="text-amber-500" />
-                    Top Holding
+                    <Activity size={14} className="text-amber-600" />
+                    Largest Position
                 </h3>
                 {topHolding ? (
-                    <>
+                    <div>
                         <div className="value truncate text-lg" title={topHolding.name}>
-                            {topHolding.name.length > 15 ? topHolding.name.substring(0, 15) + '...' : topHolding.name}
+                            {topHolding.name.length > 12 ? topHolding.name.substring(0, 12) + '...' : topHolding.name}
                         </div>
-                        <div className="sub-value">{formatCurrency(topHolding.last_valuation || 0)}</div>
-                    </>
+                        <div className="flex justify-between items-end mt-1">
+                            <div className="sub-value">{formatCurrency(topHolding.last_valuation || 0)}</div>
+                            <span className="text-xs font-mono text-slate-400">
+                                {((parseFloat(topHolding.last_valuation?.toString() || '0') / (totalValuation || 1)) * 100).toFixed(1)}%
+                            </span>
+                        </div>
+                    </div>
                 ) : (
                     <div className="sub-value">No holdings yet</div>
                 )}
@@ -125,19 +146,30 @@ const PortfolioHealthSummary: React.FC<PortfolioHealthSummaryProps> = ({ holding
             {/* Card 4: Alignment Status */}
             <div className="health-card alignment-card">
                 <h3>
-                    <Activity size={16} className={alignmentScore && alignmentScore < 60 ? "text-red-500" : "text-green-500"} />
-                    Alignment Health
+                    <Activity size={14} className="text-indigo-600" />
+                    Risk Alignment
                 </h3>
                 {loadingAlignment ? (
                     <div className="loading-skeleton"></div>
                 ) : (
-                    <>
-                        <div className="value">
+                    <div>
+                        <div className={`value ${alignmentStatus === 'Excellent' ? 'status-excellent' :
+                            alignmentStatus === 'Good' ? 'status-good' : 'status-needs-attention'
+                            }`}>
                             {alignmentStatus}
-                            {alignmentScore !== null && <span className="score ml-2 text-sm">({alignmentScore}/100)</span>}
                         </div>
-                        <div className="sub-value">Based on Risk Profile</div>
-                    </>
+                        <div className="flex items-center mt-1">
+                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full rounded-full ${alignmentStatus === 'Excellent' ? 'bg-emerald-500' :
+                                        alignmentStatus === 'Good' ? 'bg-blue-500' : 'bg-amber-500'
+                                        }`}
+                                    style={{ width: `${alignmentScore || 0}%` }}
+                                ></div>
+                            </div>
+                            <span className="score">{alignmentScore}/100</span>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

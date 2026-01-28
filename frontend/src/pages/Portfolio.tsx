@@ -132,10 +132,47 @@ const Portfolio: React.FC = () => {
                         <h1>My Portfolio</h1>
                         <p className="subtitle">Track your investments in one place (read-only)</p>
                     </div>
-                    <button className="btn-import-portfolio" onClick={() => setShowImportModal(true)}>
-                        <Download size={18} />
-                        Import Portfolio
-                    </button>
+                    <div className="flex gap-2 ml-auto">
+                        <button
+                            className="btn-download-report"
+                            onClick={async () => {
+                                try {
+                                    const blob = await portfolioService.downloadReport();
+                                    const url = window.URL.createObjectURL(blob);
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    link.setAttribute('download', `WealthMax_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    link.parentNode?.removeChild(link);
+                                } catch (e) {
+                                    console.error('Download failed', e);
+                                    setError('Failed to download report');
+                                }
+                            }}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.625rem 1.25rem',
+                                background: 'white',
+                                color: '#4f46e5',
+                                fontWeight: 600,
+                                fontSize: '0.9rem',
+                                borderRadius: '8px',
+                                border: '1px solid #e2e8f0',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <Download size={18} />
+                            PDF Report
+                        </button>
+                        <button className="btn-import-portfolio" onClick={() => setShowImportModal(true)}>
+                            <Plus size={18} />
+                            Import
+                        </button>
+                    </div>
                 </div>
 
                 {/* New Health Summary Strip */}
@@ -173,23 +210,7 @@ const Portfolio: React.FC = () => {
                 </div>
             )}
 
-            {/* Analytics Charts */}
-            {!loading && holdings.length > 0 && (
-                <div className="analytics-section">
-                    <div className="section-header mb-4">
-                        <h2 className="flex items-center gap-2 mb-1">
-                            <BarChart3 size={20} />
-                            Portfolio Analytics
-                        </h2>
-                        <p className="text-sm text-gray-500 ml-7">Visual insights into your asset allocation and performance.</p>
-                    </div>
-                    <div className="charts-grid">
-                        <AllocationChart holdings={holdings} />
-                        <HoldingsBarChart holdings={holdings} />
-                        <PortfolioTreemap holdings={holdings} />
-                    </div>
-                </div>
-            )}
+
 
             {/* Holdings Table */}
             <div className="holdings-section">

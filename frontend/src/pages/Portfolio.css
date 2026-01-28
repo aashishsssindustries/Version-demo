@@ -322,44 +322,72 @@
     color: var(--text-primary);
 }
 
-/* Table */
+/* Pro Table Styling */
 .holdings-table-wrapper {
     overflow-x: auto;
-    max-height: 600px;
-    overflow-y: auto;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
-    /* Rounded corners for the scroll area */
+    background: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .holdings-table {
     width: 100%;
-    border-collapse: separate;
-    /* Required for sticky header border spacing or just use collapse with care */
-    border-spacing: 0;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    /* Compact font */
 }
 
 .holdings-table th {
-    text-align: left;
-    padding: 1rem;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-secondary);
-    border-bottom: 2px solid var(--border-color);
-    background: var(--bg-secondary);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    white-space: nowrap;
+    background: #f8fafc;
+    color: #475569;
     font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
 }
 
 .holdings-table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-primary);
-    transition: background-color 0.2s;
-    font-variant-numeric: tabular-nums;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.holdings-table tbody tr {
+    transition: background-color 0.1s ease;
+}
+
+.holdings-table tbody tr:hover {
+    background-color: #f8fafc;
+    /* Subtle row hover */
+}
+
+/* Right-align numeric columns */
+.holdings-table th:nth-child(3),
+.holdings-table th:nth-child(4),
+.holdings-table th:nth-child(5),
+.holdings-table td:nth-child(3),
+.holdings-table td:nth-child(4),
+.holdings-table td:nth-child(5) {
+    text-align: right;
+    font-family: 'Roboto Mono', monospace;
+    /* Mono for numbers */
+}
+
+/* Highlighting Top Holding */
+.top-holding {
+    background-color: #f0fdf4 !important;
+    /* Light green tint */
+    border-left: 3px solid #10b981;
+}
+
+.holdings-table tbody tr.top-holding td:first-child {
+    padding-left: calc(1rem - 3px);
 }
 
 .holdings-table tbody tr {

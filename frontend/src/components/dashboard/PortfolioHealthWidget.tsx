@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { portfolioService } from '../../services/api';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { AlertCircle, CheckCircle, TrendingUp, Info } from 'lucide-react';
+import { AlertCircle, CheckCircle, TrendingUp, Info, ArrowUpRight } from 'lucide-react';
 import PersonaAllocationChart from './PersonaAllocationChart'; // Assuming same directory or adjust import
 import './PortfolioHealthWidget.css'; // Will create this
 
@@ -42,9 +42,9 @@ const PortfolioHealthWidget: React.FC<PortfolioHealthWidgetProps> = ({ className
 
     if (loading) {
         return (
-            <Card className={`portfolio-health-widget loading ${className || ''}`}>
-                <CardContent>
-                    <div className="skeleton-pulse" style={{ height: '300px', background: '#f5f5f5', borderRadius: '8px' }}></div>
+            <Card className={`portfolio-health-widget loading ${className || ''} border border-slate-200 shadow-sm`}>
+                <CardContent className="p-6">
+                    <div className="skeleton-pulse" style={{ height: '300px', background: '#f8fafc', borderRadius: '12px' }}></div>
                 </CardContent>
             </Card>
         );
@@ -52,8 +52,8 @@ const PortfolioHealthWidget: React.FC<PortfolioHealthWidgetProps> = ({ className
 
     if (error) {
         return (
-            <Card className={`portfolio-health-widget error ${className || ''}`}>
-                <CardContent>
+            <Card className={`portfolio-health-widget error ${className || ''} border border-red-100 shadow-sm`}>
+                <CardContent className="p-6">
                     <div className="error-state">
                         <AlertCircle className="text-red-500 mb-2" />
                         <p>{error}</p>
@@ -70,128 +70,130 @@ const PortfolioHealthWidget: React.FC<PortfolioHealthWidgetProps> = ({ className
 
     const { alignmentScore, actualAllocation, advisoryFlags, persona } = alignmentData;
 
-    // Map backend actual allocation to chart format (Needs/Wants/Savings/Protection)
-    // Backend returns equity/mutualFund split, but the 30-30-30-10 rule is budget-based.
-    // For portfolio visualization, we might map Asset Classes to these buckets roughly or just show the Ideal comparison.
-    // Wait, the prompt implies visualizing the user's PORTFOLIO alignment against the Persona.
-    // The PersonaAllocationChart is 30-30-30-10 (Budget). 
-    // Portfolio is Equity/Debt. 
-    // Let's adapt: The user likely wants to see the "Alignment Score" and the relevant flags.
-    // For the chart, if we strictly want 30-30-30-10, we need expense data. 
-    // IF the backend alignment service returns portfolio-specific allocation (Equity/MF), we should visualize THAT.
-    // BUT the requirement says "PersonaAllocationChart (30-30-30-10 donut)".
-    // Let's stick to the requirement: Use PersonaAllocationChart mainly for the "Ideal" visualization 
-    // and maybe overlay actual if we can map it, otherwise just show score stats.
-
-    // Actually, looking at previous logs, PersonaAllocationChart was designed for 30-30-30-10. 
-    // PortfolioAlignmentService returns Equity/MF split.
-    // Discrepancy: Portfolio Alignment (Assets) != Budget Allocation (Income).
-    // Strategy: We will display the Portfolio Alignment Score prominently.
-    // We will ALSO display the Persona Chart as a "Target Reference" for their financial life.
-    // For the "Actual" prop of PersonaAllocationChart, we can't map Equity/MF directly to Needs/Wants.
-    // We will show the chart in "interactive" mode to educate.
-    // For Portfolio Alignment, we'll use a linear progress bar or similar for Equity vs Debt.
-
     const getScoreColor = (score: number) => {
-        if (score >= 80) return 'text-green-600';
-        if (score >= 60) return 'text-yellow-600';
-        return 'text-red-500';
+        if (score >= 80) return 'text-emerald-600 bg-emerald-50 border-emerald-100';
+        if (score >= 60) return 'text-amber-600 bg-amber-50 border-amber-100';
+        return 'text-red-500 bg-red-50 border-red-100';
     };
 
+    const scoreColorClass = getScoreColor(alignmentScore);
+
     return (
-        <Card className={`portfolio-health-widget ${className || ''}`}>
-            <CardHeader className="pb-2">
-                <CardTitle className="flex justify-between items-center text-lg font-semibold cursor-default">
-                    <span>Portfolio Alignment</span>
-                    <span className={`text-2xl font-bold ${getScoreColor(alignmentScore)}`}>
-                        {alignmentScore}/100
-                    </span>
-                </CardTitle>
-                <p className="text-xs text-gray-500">Benchmark: {persona}</p>
+        <Card className={`portfolio-health-widget ${className || ''} border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300`}>
+            <CardHeader className="pb-4 pt-6 px-6 border-b border-slate-100">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            Portfolio Alignment
+                        </CardTitle>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Benchmark: <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{persona}</span></p>
+                    </div>
+                    <div className={`flex flex-col items-end px-3 py-1.5 rounded-lg border ${scoreColorClass}`}>
+                        <span className="text-2xl font-bold leading-none">
+                            {alignmentScore}/100
+                        </span>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Score</span>
+                    </div>
+                </div>
             </CardHeader>
 
-            <CardContent>
-                <div className="widget-grid">
+            <CardContent className="p-0">
+                <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-100">
                     {/* Left: Visualization */}
-                    <div className="chart-section flex flex-col items-center justify-center p-4">
-                        {/* We use the chart to show the IDEAL breakdown for this persona type roughly, 
-                            or just as a financial concept visualizer if we lack expense data */}
-                        <div className="mb-4">
-                            <PersonaAllocationChart size={180} interactive />
+                    <div className="chart-section flex flex-col items-center justify-center p-6 md:w-5/12 bg-slate-50/50">
+                        <div className="relative">
+                            <PersonaAllocationChart size={160} interactive />
+                            {/* Overlay Label for Context */}
+                            <div className="absolute -bottom-6 left-0 right-0 text-center">
+                                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Ideal Mix</span>
+                            </div>
                         </div>
-                        <p className="text-xs text-center text-gray-400 max-w-[200px]">
-                            *Chart represents ideal 30-30-30-10 budget rule for your persona.
-                        </p>
                     </div>
 
                     {/* Right: Stats & Flags */}
-                    <div className="stats-section">
+                    <div className="stats-section p-6 md:w-7/12">
                         {/* Actual vs Ideal (Portfolio Specific) */}
-                        <div className="allocation-bars mb-6">
-                            <h4 className="text-sm font-medium mb-2 text-gray-700">Asset Allocation</h4>
+                        <div className="mb-6 space-y-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-sm font-bold text-slate-700">Current Allocation</h4>
+                            </div>
 
                             {/* Equity */}
-                            <div className="mb-3">
-                                <div className="flex justify-between text-xs mb-1">
-                                    <span>Equity</span>
-                                    <span className="text-gray-500">Target: {alignmentData.idealAllocation.equity}%</span>
+                            <div className="group">
+                                <div className="flex justify-between text-xs mb-1.5 font-medium">
+                                    <span className="text-slate-600 flex items-center gap-1.5">
+                                        <div className="w-2 h-2 rounded-full bg-blue-600"></div> Equity
+                                    </span>
+                                    <span className="text-slate-400">Target: {alignmentData.idealAllocation.equity}%</span>
                                 </div>
-                                <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-50">
                                     <div
-                                        className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                                        className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out group-hover:bg-blue-500"
                                         style={{ width: `${Math.min(actualAllocation.equity, 100)}%` }}
                                     />
                                 </div>
-                                <div className="text-right text-xs mt-0.5 font-medium">{actualAllocation.equity.toFixed(1)}%</div>
+                                <div className="text-right text-xs mt-1 font-bold text-slate-700">{actualAllocation.equity.toFixed(1)}%</div>
                             </div>
 
                             {/* Mutual Funds / Debt */}
-                            <div>
-                                <div className="flex justify-between text-xs mb-1">
-                                    <span>Mutual Funds / Debt</span>
-                                    <span className="text-gray-500">Target: {alignmentData.idealAllocation.mutualFund}%</span>
+                            <div className="group">
+                                <div className="flex justify-between text-xs mb-1.5 font-medium">
+                                    <span className="text-slate-600 flex items-center gap-1.5">
+                                        <div className="w-2 h-2 rounded-full bg-indigo-500"></div> Debt / MF
+                                    </span>
+                                    <span className="text-slate-400">Target: {alignmentData.idealAllocation.mutualFund}%</span>
                                 </div>
-                                <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-50">
                                     <div
-                                        className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                                        className="h-full bg-indigo-500 rounded-full transition-all duration-1000 ease-out group-hover:bg-indigo-400"
                                         style={{ width: `${Math.min(actualAllocation.mutualFund, 100)}%` }}
                                     />
                                 </div>
-                                <div className="text-right text-xs mt-0.5 font-medium">{actualAllocation.mutualFund.toFixed(1)}%</div>
+                                <div className="text-right text-xs mt-1 font-bold text-slate-700">{actualAllocation.mutualFund.toFixed(1)}%</div>
                             </div>
                         </div>
 
                         {/* Advisory Flags */}
-                        <div className="advisory-flags flex flex-col gap-2">
+                        <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Advisor Notes</h4>
+
                             {advisoryFlags.length === 0 && (
-                                <div className="p-3 bg-green-50 rounded border border-green-100 flex items-start gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
-                                    <p className="text-xs text-green-800">Your portfolio is perfectly aligned with your profile!</p>
+                                <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100 flex items-start gap-3">
+                                    <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5" />
+                                    <div>
+                                        <p className="text-xs font-semibold text-emerald-800">Perfect Alignment</p>
+                                        <p className="text-[11px] text-emerald-600">Your portfolio matches your risk profile.</p>
+                                    </div>
                                 </div>
                             )}
 
-                            {advisoryFlags.map((flag: any) => (
+                            {advisoryFlags.slice(0, 2).map((flag: any) => (
                                 <div
                                     key={flag.id}
-                                    className={`p-3 rounded border flex items-start gap-2 ${flag.type === 'warning' ? 'bg-amber-50 border-amber-100' :
-                                        flag.type === 'suggestion' ? 'bg-blue-50 border-blue-100' : 'bg-gray-50 border-gray-100'
+                                    className={`p-3 rounded-lg border-l-4 flex items-start gap-3 shadow-sm ${flag.type === 'warning' ? 'bg-white border-l-amber-500 border border-slate-100' :
+                                            flag.type === 'suggestion' ? 'bg-white border-l-blue-500 border border-slate-100' :
+                                                'bg-white border-l-slate-400 border border-slate-100'
                                         }`}
                                 >
-                                    {flag.type === 'warning' ? <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" /> :
-                                        flag.type === 'suggestion' ? <TrendingUp className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" /> :
-                                            <Info className="w-4 h-4 text-gray-500 mt-0.5 shrink-0" />}
-                                    <div className="flag-content">
-                                        <p className={`text-xs font-semibold mb-0.5 ${flag.type === 'warning' ? 'text-amber-800' :
-                                            flag.type === 'suggestion' ? 'text-blue-800' : 'text-gray-700'
-                                            }`}>
+                                    {flag.type === 'warning' ? <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" /> :
+                                        flag.type === 'suggestion' ? <TrendingUp className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" /> :
+                                            <Info className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />}
+                                    <div className="min-w-0">
+                                        <p className="text-xs font-bold text-slate-800 mb-0.5 truncate">
                                             {flag.title}
                                         </p>
-                                        <p className="text-xs text-gray-600 leading-relaxed">
+                                        <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
                                             {flag.message}
                                         </p>
                                     </div>
                                 </div>
                             ))}
+
+                            {advisoryFlags.length > 2 && (
+                                <button className="w-full text-center text-xs text-blue-600 font-medium hover:underline flex items-center justify-center gap-1 mt-2">
+                                    View {advisoryFlags.length - 2} more <ArrowUpRight size={12} />
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

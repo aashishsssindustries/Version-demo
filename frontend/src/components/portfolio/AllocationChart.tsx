@@ -20,7 +20,7 @@ interface AllocationChartProps {
     holdings: Holding[];
 }
 
-const COLORS = ['#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6'];
+const COLORS = ['#10b981', '#6366f1', '#34d399', '#818cf8', '#6ee7b7', '#a5b4fc', '#059669', '#4f46e5'];
 
 const AllocationChart: React.FC<AllocationChartProps> = ({ holdings }) => {
     // Group by asset type
@@ -50,21 +50,16 @@ const AllocationChart: React.FC<AllocationChartProps> = ({ holdings }) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
             const percent = ((data.value / total) * 100).toFixed(1);
-            const color = data.fill || COLORS[payload[0].dataKey === 'value' ? payload[0].payload.index % COLORS.length : 0]; // Fallback if fill not passed directly
-            // Note: Recharts Pie Cell index mapping is separate, so we'll grab color from Cell map logic or payload if available.
-            // Simplified: Pie passes fill in payload usually if mapped. Let's rely on index match logic if needed or ensure Cell passes it. 
-            // Better: We'll calculate index color inside map to be safe.
-            const index = chartData.findIndex(item => item.name === data.name);
-            const actualColor = COLORS[index % COLORS.length];
+            const color = payload[0].fill;
 
             return (
-                <div className="chart-tooltip">
+                <div className="chart-tooltip" style={{ background: '#1e293b', color: '#f8fafc', border: 'none' }}>
                     <div className="flex items-center gap-2 mb-1">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: actualColor }}></div>
-                        <p className="tooltip-label mb-0">{data.name}</p>
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }}></div>
+                        <p className="tooltip-label mb-0" style={{ color: '#e2e8f0', fontFamily: 'Inter' }}>{data.name}</p>
                     </div>
-                    <p className="tooltip-value">₹{data.value.toLocaleString('en-IN')}</p>
-                    <p className="tooltip-percent text-gray-400">{percent}% of Portfolio</p>
+                    <p className="tooltip-value" style={{ fontFamily: 'Roboto Mono' }}>₹{data.value.toLocaleString('en-IN')}</p>
+                    <p className="tooltip-percent" style={{ color: '#94a3b8' }}>{percent}% of Portfolio</p>
                 </div>
             );
         }
@@ -82,10 +77,11 @@ const AllocationChart: React.FC<AllocationChartProps> = ({ holdings }) => {
                         data={chartData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={2}
+                        innerRadius={65}
+                        outerRadius={85}
+                        paddingAngle={4}
                         dataKey="value"
+                        stroke="none"
                     >
                         {chartData.map((_, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="none" />
@@ -93,10 +89,12 @@ const AllocationChart: React.FC<AllocationChartProps> = ({ holdings }) => {
                     </Pie>
                     <Tooltip content={<CustomTooltip />} cursor={false} />
                     <Legend
-                        verticalAlign="bottom"
-                        height={36}
+                        verticalAlign="middle"
+                        align="right"
+                        layout="vertical"
                         iconType="circle"
-                        formatter={(value) => <span style={{ color: '#64748b', fontSize: '12px', fontWeight: 500 }}>{value}</span>}
+                        iconSize={8}
+                        wrapperStyle={{ fontSize: '11px', fontWeight: 500, fontFamily: 'Inter' }}
                     />
                 </PieChart>
             </ResponsiveContainer>

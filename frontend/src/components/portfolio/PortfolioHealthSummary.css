@@ -1,99 +1,134 @@
 .portfolio-health-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
     width: 100%;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .health-card {
-    background: white;
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 1px solid #eef0f3;
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
 }
 
 .health-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+/* Header with Icon */
 .health-card h3 {
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: 0.75rem;
+    font-weight: 600;
     color: #64748b;
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.5rem 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.05em;
 }
 
+/* Ticker Value Style */
 .health-card .value {
+    font-family: 'Roboto Mono', 'JetBrains Mono', monospace;
+    /* Monospace for financial precision */
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 600;
     color: #0f172a;
-    line-height: 1.2;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
 }
 
 .health-card .sub-value {
-    font-size: 0.85rem;
-    color: #64748b;
-    margin-top: 0.25rem;
-    font-weight: 400;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: auto;
+    font-weight: 500;
 }
 
-.health-card.alignment-card .value {
-    font-size: 1.25rem;
-}
-
-.health-card.alignment-card .score {
-    color: #2563eb;
-    /* Blue for score */
-}
-
-/* Mix Bar for Asset Mix Card */
+/* Asset Mix Specifics */
 .mix-bar {
     width: 100%;
-    height: 6px;
-    background: #e2e8f0;
-    border-radius: 3px;
+    height: 4px;
+    background: #f1f5f9;
+    border-radius: 2px;
     margin-top: 0.75rem;
-    overflow: hidden;
     display: flex;
-}
-
-.mix-segment {
-    height: 100%;
-    transition: width 0.5s ease;
-}
-
-.mix-segment.equity {
-    background-color: #3b82f6;
-    /* Blue */
-}
-
-.mix-segment.debt {
-    background-color: #8b5cf6;
-    /* Purple */
+    overflow: hidden;
 }
 
 .mix-legend {
     display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: #64748b;
+    gap: 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
     margin-top: 0.5rem;
 }
 
+/* Colors */
+.text-equity {
+    color: #10b981;
+}
+
+.text-debt {
+    color: #6366f1;
+}
+
+.bg-equity {
+    background-color: #10b981;
+}
+
+.bg-debt {
+    background-color: #6366f1;
+}
+
+/* Alignment Card Specifics */
+.health-card.alignment-card .value {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: baseline;
+}
+
+.health-card.alignment-card .score {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-left: 0.5rem;
+    font-weight: 500;
+}
+
+/* Status Colors */
+.status-excellent {
+    color: #10b981;
+}
+
+/* Green */
+.status-good {
+    color: #3b82f6;
+}
+
+/* Blue */
+.status-needs-attention {
+    color: #f59e0b;
+}
+
+/* Amber */
+
+/* Loading Skeleton */
 .loading-skeleton {
-    height: 2rem;
+    height: 1.5rem;
+    width: 60%;
     background: #f1f5f9;
     border-radius: 4px;
     animation: pulse 1.5s infinite;
@@ -113,15 +148,21 @@
     }
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Responsive */
+@media (max-width: 1024px) {
     .portfolio-health-summary {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
     .portfolio-health-summary {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .health-card {
+        height: auto;
+        padding: 1.25rem;
     }
 }

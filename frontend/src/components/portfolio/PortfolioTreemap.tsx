@@ -18,8 +18,9 @@ interface PortfolioTreemapProps {
 }
 
 const COLORS = {
-    EQUITY: ['#22c55e', '#16a34a', '#15803d', '#14532d'],
-    MUTUAL_FUND: ['#6366f1', '#4f46e5', '#4338ca', '#3730a3']
+    // Pro Theme: Emerald for Equity, Indigo for Funds
+    EQUITY: ['#059669', '#10b981', '#34d399', '#6ee7b7'], // Emerald shades
+    MUTUAL_FUND: ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc'] // Indigo shades
 };
 
 const PortfolioTreemap: React.FC<PortfolioTreemapProps> = ({ holdings }) => {
