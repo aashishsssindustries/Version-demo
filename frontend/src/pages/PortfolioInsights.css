@@ -1,0 +1,264 @@
+/* PortfolioInsights.css */
+
+.insights-container {
+    padding: 2rem;
+    background-color: #0f1115;
+    /* Matching dark theme background */
+    min-height: 100vh;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+}
+
+.insights-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #2a2d35;
+}
+
+.insights-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+.insights-header p {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+    margin: 0.5rem 0 0 0;
+}
+
+.last-updated {
+    font-size: 0.85rem;
+    color: #6b7280;
+    background: #1f222a;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+/* Executive Summary Section */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: #1a1d24;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #2a2d35;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: #3b82f6;
+}
+
+.summary-card h3 {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.summary-subtext {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.positive {
+    color: #10b981;
+}
+
+.negative {
+    color: #ef4444;
+}
+
+.neutral {
+    color: #9ca3af;
+}
+
+/* Charts Section */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background: #1a1d24;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #2a2d35;
+    min-height: 400px;
+}
+
+.chart-card h2 {
+    font-size: 1.25rem;
+    color: #ffffff;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #2a2d35;
+}
+
+/* Marketplace Recommendations */
+.recommendations-section {
+    margin-top: 2rem;
+}
+
+.recommendations-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #fff;
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.rec-card {
+    background: #1a1d24;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #2a2d35;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.rec-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.rec-category {
+    font-size: 0.75rem;
+    background: #2563eb33;
+    color: #60a5fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.rec-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.rec-desc {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+/* Loading & Error States */
+.loading-state,
+.error-state,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.spinner {
+    border: 3px solid #2a2d35;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: #2a2d35;
+    border-radius: 9999px;
+    height: 8px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.5s ease-out;
+}
+
+.risk-matrix {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    height: 300px;
+    margin-top: 1rem;
+}
+
+.risk-quadrant {
+    background: #1f222a;
+    border: 1px solid #2a2d35;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+}
+
+.quadrant-label {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.quadrant-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.quadrant-schemes {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
