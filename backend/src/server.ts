@@ -3,7 +3,8 @@ import config from './config/env';
 import database from './config/database';
 import logger from './config/logger';
 
-const PORT = config.get('PORT');
+const PORT = Number(process.env.PORT) || Number(config.get('PORT')) || 3000;
+
 
 const startServer = async () => {
     try {
