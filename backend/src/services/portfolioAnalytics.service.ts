@@ -305,7 +305,7 @@ export function generateSummary(
     const mfHoldings = holdings.filter(h => h.type === 'MUTUAL_FUND');
 
     // Find largest holding
-    let largestHolding = holdings[0] || { name: '', percentage: 0 };
+    let largestHolding: any = holdings[0] || { name: '', percentage: 0, currentValue: 0 };
     holdings.forEach(h => {
         if (h.currentValue > (largestHolding.currentValue || 0)) {
             largestHolding = h;
