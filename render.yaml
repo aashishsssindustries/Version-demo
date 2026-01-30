@@ -62,7 +62,7 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://wealthmax-backend-izhk.onrender.com/api/v1
+        value: https://wealthmax-backend-a6kn.onrender.com/api/v1
 
 # Database (if not already created separately)
 # databases:
