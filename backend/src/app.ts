@@ -13,14 +13,18 @@ const app: Application = express();
 app.use(helmet());
 
 // CORS configuration
+const defaultOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://wealthmax-frontend.onrender.com',
+    'https://wealthmax-frontend-a6kn.onrender.com'
+];
+
 const corsOrigin = config.get('CORS_ORIGIN') as string;
-const allowedOrigins = corsOrigin
-    ? corsOrigin.split(',').map(origin => origin.trim())
-    : [
-        'http://localhost:5173',
-        'http://localhost:5174',
-        'https://wealthmax-frontend.onrender.com',
-    ];
+const allowedOrigins = [
+    ...defaultOrigins,
+    ...(corsOrigin ? corsOrigin.split(',').map(origin => origin.trim()) : [])
+];
 
 app.use(
     cors({
