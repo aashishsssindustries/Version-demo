@@ -40,6 +40,12 @@ const Dashboard: React.FC = () => {
     };
 
     useEffect(() => {
+        // Force onboarding if email not verified
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user && !user.is_email_verified) {
+            setShowWizard(true);
+        }
+
         fetchProfile();
         if (searchParams.get('updated') === 'true') {
             setShowSuccessToast(true);

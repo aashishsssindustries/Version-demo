@@ -13,7 +13,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onClose, onC
     const [loading, setLoading] = useState(false);
 
     // Step 1: OTP Verification State
-    const [emailVerified, setEmailVerified] = useState(false);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const [emailVerified, setEmailVerified] = useState(user.is_email_verified || false);
     const [mobileVerified, setMobileVerified] = useState(false);
     const [emailOtpSent, setEmailOtpSent] = useState(false);
     const [mobileOtpSent, setMobileOtpSent] = useState(false);
