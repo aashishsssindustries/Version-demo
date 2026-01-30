@@ -15,10 +15,16 @@ app.use(helmet());
 // CORS configuration
 const corsOrigin = config.get('CORS_ORIGIN') as string;
 app.use(
-    cors({
-        origin: corsOrigin || (config.isDevelopment() ? ['http://localhost:5173', 'http://localhost:5174'] : undefined),
-        credentials: true,
-    })
+  cors({
+    origin: corsOrigin
+      ? corsOrigin.split(',') // allow multiple origins
+      : [
+          'http://localhost:5173',
+          'http://localhost:5174',
+          'https://wealthmax-frontend.onrender.com',
+        ],
+    credentials: true,
+  })
 );
 
 // Body parsing middleware
