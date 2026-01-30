@@ -1,11 +1,12 @@
 import multer from 'multer';
+import { Request } from 'express';
 
 // Configure multer for PDF file uploads
 // Uses memory storage to keep file in buffer (not saved to disk)
 const storage = multer.memoryStorage();
 
 // File filter to accept only PDF files
-const fileFilter = (_req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (_req: Request, file: any, cb: multer.FileFilterCallback) => {
     if (file.mimetype === 'application/pdf') {
         cb(null, true);
     } else {

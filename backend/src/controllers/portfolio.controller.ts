@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import multer from 'multer';
 import { PortfolioService } from '../services/portfolio.service';
 import { PortfolioAlignmentService } from '../services/portfolioAlignment.service';
 import { ProfileModel } from '../models/profile.model';
@@ -183,7 +184,7 @@ export class PortfolioController {
     static async uploadCAS(req: Request, res: Response) {
         try {
             const userId = (req as any).user.id;
-            const file = (req as any).file as Express.Multer.File | undefined;
+            const file = (req as any).file as any;
             const { password } = req.body;
 
             // Validate file upload
