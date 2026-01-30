@@ -119,7 +119,8 @@ export class ProfileController {
             logger.error('Profile Update Error', error);
             res.status(500).json({
                 success: false,
-                message: error.message || 'Failed to update profile'
+                message: error.message || 'Failed to update profile',
+                debug_error: process.env.NODE_ENV === 'production' ? error.toString() : error // Temporary debugging
             });
         }
     }
