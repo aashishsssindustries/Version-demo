@@ -14,17 +14,29 @@ app.use(helmet());
 
 // CORS configuration
 const corsOrigin = config.get('CORS_ORIGIN') as string;
+const allowedOrigins = corsOrigin
+    ? corsOrigin.split(',').map(origin => origin.trim())
+    : [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'https://wealthmax-frontend.onrender.com',
+    ];
+
 app.use(
-  cors({
-    origin: corsOrigin
-      ? corsOrigin.split(',') // allow multiple origins
-      : [
-          'http://localhost:5173',
-          'http://localhost:5174',
-          'https://wealthmax-frontend.onrender.com',
-        ],
-    credentials: true,
-  })
+    cors({
+        origin: (origin, callback) => {
+            // Allow requests with no origin (like mobile apps or curl requests)
+            if (!origin) return callback(null, true);
+
+            if (allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                logger.warn(`CORS blocked origin: ${origin}`);
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true,
+    })
 );
 
 // Body parsing middleware
@@ -56,12 +68,15 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // 404 handler
-app.use((_req: Request, res: Response) => {
+app.use((req: Request, res: Response) => {
+    logger.warn(`404 - Route not found: ${req.method} ${req.originalUrl}`);
     res.status(404).json({
         success: false,
         error: {
             message: 'Route not found',
             code: 'NOT_FOUND',
+            path: req.originalUrl,
+            method: req.method
         },
         timestamp: new Date().toISOString(),
     });

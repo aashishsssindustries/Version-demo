@@ -184,20 +184,35 @@ postgresql://postgres:[YOUR-PASSWORD]@[HOST]:5432/postgres
 
 ## 🚢 Deployment
 
-### Backend
+### Production Deployment (Render)
 
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for complete production deployment guide including:
+- Step-by-step Render deployment instructions
+- Environment variable configuration
+- Database migration steps
+- Troubleshooting 404/500 errors
+- Health check verification
+- Security checklist
+
+**Quick Production URLs:**
+- Backend: https://wealthmax-backend-izhk.onrender.com
+- Frontend: https://wealthmax-frontend.onrender.com
+- Health Check: https://wealthmax-backend-izhk.onrender.com/api/v1/health
+
+### Local Production Build
+
+**Backend:**
 ```bash
 cd backend
 npm run build
 npm start
 ```
 
-### Frontend
-
+**Frontend:**
 ```bash
 cd frontend
 npm run build
-# Deploy the dist/ folder to your hosting service
+npm run preview  # or deploy dist/ folder
 ```
 
 ## 📝 API Documentation
